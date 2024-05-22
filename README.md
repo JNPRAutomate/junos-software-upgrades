@@ -17,6 +17,8 @@ Also, if you have an account with juniper.net, then you can access the KB that h
 
 ### Recommended Information to Provide:
 
+[Will send them to the wiki](https://github.com/JNPRAutomate/junos-software-upgrades/wiki/Junos-Software-Upgrade-Wiki)
+
 Software version (from):
 
 Software version (to):
