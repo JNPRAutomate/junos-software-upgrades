@@ -1,0 +1,30 @@
+# Variable for upgrading Junos images
+---
+junos_log_dir: /var/www/html/logs/
+package_dir: /var/www/html/Junos/
+models:
+    xEX2300: 
+      junos_package: junos-arm-32-20.4R3-S5.4.tgz
+      junos_version: 20.4R3-S5.4
+      wait_time: 1800
+      install_time: 3600
+    EX2300: 
+      junos_package: junos-arm-32-20.4R3-S3.4.tgz
+      junos_version: 20.4R3-S3.4
+      wait_time: 1800
+      install_time: 3600
+    EX3400: 
+      junos_package: junos-arm-32-20.4R3-S5.4.tgz
+      junos_version: 20.4R3-S5.4
+      wait_time: 1800
+      install_time: 3600
+    EX4300: 
+      junos_package: jinstall-ex-4300-20.4R3-S2.6-signed.tgz
+      junos_version: 20.4R3-S2.6
+      wait_time: 1250
+      install_time: 3600
+    EX4600: 
+      junos_package: jinstall-host-ex-4600-20.4R3-S2.6-signed.tgz
+      junos_version: 20.4R3-S2.6
+      wait_time: 1250
+      install_time: 3600

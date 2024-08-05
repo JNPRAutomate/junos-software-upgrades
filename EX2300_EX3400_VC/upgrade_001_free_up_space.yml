@@ -1,0 +1,63 @@
+# Run the free_up_space.slax script with a url call to clean up space on the device
+#
+# 04.12.2023 - adapt for upgrade only
+# 13.05.2022 - add system storage cleanup before slax file url call
+# kcope@juniper.net
+#
+--- 
+- name: Free Up Space on EX3400s and EX2300s
+  hosts: junosdevices
+  roles:
+   - Juniper.junos
+  connection: local
+  gather_facts: no
+  #strategy: debug
+  serial: 7
+
+  vars:
+     ansible_user: juniper
+
+  vars_files:
+   - group_vars/secrets.yml
+
+  tasks:
+  - name: Model from Facts
+    junos_facts:
+      provider: 
+        username: "{{juniper_user}}"
+        password: "{{juniper_passwd}}"
+        port: "{{ansible_port}}"
+    when: ansible_net_model is not defined
+
+  - set_fact:
+       model: "{{ansible_net_model[:6] | upper }}"
+       cacheable: yes
+
+  - meta: end_play
+    when: model not in [ 'EX2300', 'EX3400' ]
+
+  - name: Storage Cleanup filesystem to make sure there is room to exectute an op slax script
+    juniper_junos_rpc:
+       rpcs: "request-system-storage-cleanup"
+       timeout: 180
+    register: result
+
+  - name: Reset the ssh connection (permissions possibly changed for juniper user)
+    meta: reset_connection
+
+  - name: Run free_up_space.slax script
+    juniper_junos_rpc:
+       rpcs: "op-url"
+       kwargs:
+           url-name: "http://10.66.66.66/slax/free_up_space.slax"
+       timeout: 600
+    register: result
+    retries: 1
+
+  - pause:
+      seconds: 5
+
+  - name: free_up_space.slax results
+    debug:
+        var: result
+

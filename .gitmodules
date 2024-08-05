@@ -1,0 +1,3 @@
+[submodule "EX2300_EX3400_VC/SLAX"]
+	path = EX2300_EX3400_VC/SLAX
+	url = https://github.com/kenthecope/SLAX.git
