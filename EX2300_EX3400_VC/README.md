@@ -1,5 +1,3 @@
-# UNDER CONSTRUCTION
-# junos-software-upgrades
 ## Ansible Upgrades for EX2300 and EX3400 Virtual Chassis
 
 ### Recommended Information to Provide:
