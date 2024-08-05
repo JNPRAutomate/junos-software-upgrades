@@ -1,0 +1,229 @@
+# Last update 
+# 06.12.2023 - add error handler to move code to /tmp when /var/tmp is full
+# 27.04.2022 - add serial and stig group on/off 
+# Make sure a switch is upgraded to the desired Junos version
+# based on the model of the device.  This playbook requires 
+# variables read in from group_vars junos.yml in the format below
+# junos_log_dir is where upgrade logs are written to (if needed)
+# package_dir is the base directory for where junos imagages can be found, 
+# these need to be further broken down into directories that correspond
+# to the model (EX2300, EX3400, etc)
+# junos_package is the name of the upgrade file
+# junos_version is the version to be checked on the device to make sure it matches, this
+# should be the same as the package version
+# wait_time is a timer for how long the timeout for pyEZ should be set to
+# install_time is a timer to wait for the install to happen and the switch to reboot
+#
+# ---
+# junos_log_dir: /var/www/html/logs/
+# package_dir: /var/www/html/Junos/
+# models:
+#     EX2300:
+#       junos_package: junos-arm-32-18.4R3-S5.4.tgz
+#       junos_version: 18.4R3-S5.4
+#       wait_time: 1250
+#       install_time: 3600
+#     EX3400:
+#       junos_package: junos-arm-32-18.4R3-S5.4.tgz
+#       junos_version: 18.4R3-S5.4
+#       wait_time: 1250
+#       install_time: 3600
+#     EX4300:
+#       junos_package: jinstall-ex-4300-18.4R2-S1.4-signed.tgz
+#       junos_version: 18.4R2-S1.4
+#       wait_time: 1250
+#       install_time: 3600
+#     EX4600:
+#       junos_package: jinstall-host-ex-4600-18.4R2-S1.4-signed.tgz
+#       junos_version: 18.4R2-S1.4
+#       wait_time: 1250
+#       install_time: 3600
+#
+# kcope@juniper.net
+#
+--- 
+- name: Upgrade Junos to the Proper Version
+  hosts: junosdevices
+  roles:
+   - Juniper.junos
+  connection: local
+  gather_facts: no
+  #strategy: debug
+  serial: 3
+
+  vars:
+     ansible_user: juniper
+
+  vars_files:
+   - group_vars/secrets.yml
+   - group_vars/junos.yml
+
+  tasks:
+  - name: Model from Facts
+    junos_facts:
+      provider: 
+        username: "{{juniper_user}}"
+        password: "{{juniper_passwd}}"
+        port: "{{ansible_port}}"
+    when: ansible_net_model is not defined
+
+  - set_fact:
+       model: "{{ansible_net_model[:6] | upper }}"
+       cacheable: yes
+
+  - meta: end_play
+    when: model not in [ 'EX2300', 'EX3400' ]
+
+  - name: Get Version Facts
+    juniper_junos_facts:
+    register: result
+
+  - name: Junos Version on device
+    debug:
+        var: result.facts.version
+
+  - name: desired version
+    debug:
+       msg: "{{ models[model].junos_version }}"
+
+  - meta: end_play
+    when: "result.facts.version == models[model].junos_version"
+    
+  - name: Upgrade
+    debug:
+       msg: "Need to upgrade {{result.facts.version}} to {{ models[model].junos_version }}"
+
+  - name: Turn on FTP for file transfer
+    template: 
+       src: templates/ftp_on.j2
+       dest: configs/{{ inventory_hostname }}_ftp_on.conf
+
+  - name: Load Replace FTP on Configlet
+    junos_config: 
+      src: configs/{{ inventory_hostname }}_ftp_on.conf
+      comment: "Ansible FTP on"
+    register: commit
+    until: commit is not failed
+    retries: 3
+
+  - name: Reset the ssh connection (permissions possibly changed for juniper user)
+    meta: reset_connection
+
+  - name: FTP {{package_dir}}/{{model|lower}}/{{models[model].junos_package}}" to /var/tmp/
+    shell: "curl -u juniper:juniper123 -T {{package_dir}}/{{model|lower}}/{{models[model].junos_package}} ftp://{{inventory_hostname}}//var/tmp/"
+    args:
+        warn: false
+
+ - name: Turn off FTP for file transfer
+    template: 
+       src: templates/ftp_off.j2
+       dest: configs/{{ inventory_hostname }}_ftp_off.conf
+    register: ftp_result
+
+  - name: Load Replace FTP off Configlet
+    junos_config: 
+      src: configs/{{ inventory_hostname }}_ftp_off.conf
+      comment: "Ansible FTP off"
+    register: commit
+    until: commit is not failed
+    retries: 2
+
+  - name: Reset the ssh connection (permissions possibly changed for juniper user)
+    meta: reset_connection
+
+  - name: "Junos Upgrade"
+    block:
+      - name: "Install Junos OS Package {{package_dir}}/{{model|lower}}/{{models[model].junos_package}}"
+        juniper_junos_software:
+           version: "{{ models[model].junos_version }}"
+           local_package: "{{package_dir}}/{{model|lower}}/{{models[model].junos_package}}"
+           remote_package: "/var/tmp/{{models[model].junos_package}}"
+           reboot: True
+           reboot_pause: 60
+           # logfile: "{{ junos_log_dir }}/{{hostname}}_upgrade.log"
+           cleanfs: False
+           install_timeout: "{{ models[model].install_time }}"
+           no_copy: True
+           validate: False
+           all_re: True
+           logdir: "/var/www/html/logs"
+           level: "INFO"
+           kwargs:
+              force: True
+              no-copy: True
+              unlink: True
+        register: sw_response
+        #until: sw_response is not failed
+        delay: 10
+        retries: 0
+        notify:
+        - wait_reboot
+    rescue:
+      - name: "Move install package to /tmp"
+        juniper_junos_command:
+          commands: "file rename /var/tmp/{{models[model].junos_package}} /tmp"
+          provider:
+              user: "{{juniper_user}}"
+              passwd: "{{juniper_passwd}}"
+              port: "{{ ansible_port }}"
+
+      - name: "Filsystem sync pause"
+        pause:
+          seconds: 97
+
+      - name: "Install Junos OS Package {{package_dir}}/{{model|lower}}/{{models[model].junos_package}}"
+        juniper_junos_software:
+           version: "{{ models[model].junos_version }}"
+           local_package: "{{package_dir}}/{{model|lower}}/{{models[model].junos_package}}"
+           #remote_package: "http://10.66.67.2:/Junos/{{model|lower}}/{{models[model].junos_package}}"
+           remote_package: "/tmp/{{models[model].junos_package}}"
+           reboot: True
+           reboot_pause: 60
+           # logfile: "{{ junos_log_dir }}/{{hostname}}_upgrade.log"
+           cleanfs: False
+           install_timeout: "{{ models[model].install_time }}"
+           no_copy: True
+           validate: False
+           all_re: True
+           logdir: "/var/www/html/logs"
+           level: "INFO"
+           kwargs:
+              force: True
+              no-copy: True
+              unlink: True
+        register: sw_response
+        #until: sw_response is not failed
+        delay: 10
+        retries: 0
+        notify:
+        - wait_reboot
+
+
+  - name:  Print Upgrade Response
+    debug:
+       var: sw_response
+
+  - meta: end_play
+    when: not sw_response.changed
+
+  - name:  Print Upgrade Response
+    debug:
+       msg: "Waiting for Reboot...."
+
+  - pause:
+      seconds: 60
+
+  - name: wait_reboot
+    wait_for: 
+        host: "{{ inventory_hostname }}"
+        port: 830
+        timeout: "{{ models[model].wait_time }}"
+
+
+  handlers:
+    - name: wait_reboot
+      wait_for: 
+          host: "{{ inventory_hostname }}"
+          port: 830
+          timeout: "{{ models[model].wait_time }}"
+      when: not sw_response.check_mode
