@@ -4,6 +4,14 @@
 
 Hardware model: EX2300 and EX3400, standalone or ina Virtual Chassis Configurartion
 
+### Ansible Software
+
+These playbook used the Juniper Junos role: 
+https://galaxy.ansible.com/ui/standalone/roles/juniper/junos/
+
+This Ansible role is superseded by the Juniper Device Collection: 
+https://galaxy.ansible.com/ui/repo/published/juniper/device/
+
 ### Usage ###
 
 These are a couple of playbooks that were taken from a series used in a ZTP process to bring up and configure
