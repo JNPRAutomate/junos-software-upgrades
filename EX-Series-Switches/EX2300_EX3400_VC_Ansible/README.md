@@ -2,7 +2,7 @@
 
 ### Recommended Information to Provide:
 
-Hardware model: EX2300 and EX3400, standalone or ina Virtual Chassis Configurartion
+Hardware model: EX2300 and EX3400, standalone or in a Virtual Chassis Configurartion
 
 ### Ansible Software
 
