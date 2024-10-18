@@ -2,6 +2,11 @@
 # junos-software-upgrades
 This upgrade repo was created to allow people to document how they [upgrade JUNOS](https://www.youtube.com/watch?v=bznodPnJdJk).
 
+The directory schema is organized by hardware model. 
+Routers include the [MX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/MX-Series-Routers), [PTX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/PTX-Series-Routers), and [ACX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/ACX-Series-Routers). 
+Switches include the [QFX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/QFX-Series-Switches) and [EX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/EX-Series-Switches). 
+Firewalls include the [SRX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/SRX-Series-Firewalls). 
+
 ## For our users:
 
 ### Upgrade Guidance from Juniper
