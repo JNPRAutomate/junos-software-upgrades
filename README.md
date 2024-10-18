@@ -1,11 +1,18 @@
 # UNDER CONSTRUCTION
 # junos-software-upgrades
-This upgrade repo was created to allow people to document how they [upgrade JUNOS](https://www.youtube.com/watch?v=bznodPnJdJk).
+This upgrade repo was created to allow people to document how they [upgrade JUNOS](https://www.youtube.com/watch?v=bznodPnJdJk). The directory schema is organized by hardware model.
 
-The directory schema is organized by hardware model. 
-Routers include the [MX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/MX-Series-Routers), [PTX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/PTX-Series-Routers), and [ACX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/ACX-Series-Routers). 
-Switches include the [QFX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/QFX-Series-Switches) and [EX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/EX-Series-Switches). 
-Firewalls include the [SRX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/SRX-Series-Firewalls). 
+Routers include the
+* [MX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/MX-Series-Routers),
+* [PTX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/PTX-Series-Routers), and
+* [ACX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/ACX-Series-Routers).  
+
+Switches include the
+* [QFX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/QFX-Series-Switches) and
+* [EX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/EX-Series-Switches).  
+
+Firewalls include the
+* [SRX-Series](https://github.com/JNPRAutomate/junos-software-upgrades/tree/main/SRX-Series-Firewalls). 
 
 ## For our users:
 
@@ -18,17 +25,9 @@ Also, if you have an account with juniper.net, then you can access the KB that h
 ## For our contributors:
 
 ### Recommended Information to Provide:
-
-[Will send them to the wiki](https://github.com/JNPRAutomate/junos-software-upgrades/wiki/Junos-Software-Upgrade-Wiki)
-
-Software version (from):
-
-Software version (to):
-
-Hardware model:
-
-Main Protocols in the Configuration:
-
-Tools Used for upgrade: (including pre and post checks, configuration management and more.) 
-
-Any Special Instructions for Install or Use:
+Software version (from):  
+Software version (to):  
+Hardware model:  
+Main Protocols in the Configuration:  
+Tools Used for upgrade: (including pre and post checks, configuration management and more.)   
+Any Special Instructions for Install or Use:  
